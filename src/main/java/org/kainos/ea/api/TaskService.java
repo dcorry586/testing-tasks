@@ -1,9 +1,8 @@
-package org.kanos.ea.api;
+package org.kainos.ea.api;
 
-import org.kanos.ea.cli.Task;
+import org.kainos.ea.cli.Task;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

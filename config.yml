@@ -1,4 +1,6 @@
 logging:
   level: INFO
   loggers:
-    org.kanos.ea: DEBUG
+    org.kainos.ea: DEBUG
+swagger:
+  resourcePackage: org.kainos.ea

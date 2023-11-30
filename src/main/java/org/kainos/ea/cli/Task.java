@@ -1,4 +1,4 @@
-package org.kanos.ea.cli;
+package org.kainos.ea.cli;
 
 import java.sql.Timestamp;
 
