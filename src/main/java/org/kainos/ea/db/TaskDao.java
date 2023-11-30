@@ -3,10 +3,7 @@ package org.kainos.ea.db;
 import org.kainos.ea.cli.Task;
 import org.kainos.ea.client.CannotGetEnvironmentVariableException;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,4 +33,26 @@ public class TaskDao {
     return null;
   }
 
+  public Task getTaskById(int id) {
+    String sql = "SELECT task_id, task, completed, created_at FROM tasks WHERE task_id = ?;";
+    try (Connection connection = databaseConnector.getConnection();
+         PreparedStatement statement = connection.prepareStatement(sql);) {
+      statement.setInt(1, id);
+
+      ResultSet rs = statement.executeQuery();
+
+      if (rs.next()) {
+        return new Task(
+                rs.getInt("task_id"),
+                rs.getString("task"),
+                rs.getBoolean("completed"),
+                rs.getTimestamp("created_at")
+        );
+      }
+
+    } catch (SQLException | CannotGetEnvironmentVariableException e) {
+      System.err.println(e.getMessage());
+    }
+    return null;
+  }
 }

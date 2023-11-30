@@ -11,4 +11,8 @@ public class TaskService {
   public List<Task> getAllTasks() {
     return taskDao.getAllTasks();
   }
+
+  public Task getTaskById(int id) {
+    return taskDao.getTaskById(id);
+  }
 }
