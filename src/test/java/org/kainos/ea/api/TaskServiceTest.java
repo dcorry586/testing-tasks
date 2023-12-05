@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.kainos.ea.cli.Task;
+import org.kainos.ea.cli.TaskResponse;
 import org.kainos.ea.client.CannotGetEnvironmentVariableException;
 import org.kainos.ea.db.DatabaseConnector;
 import org.kainos.ea.db.TaskDao;
@@ -39,10 +40,14 @@ public class TaskServiceTest {
 
   @Test
   public void getAllTasks_shouldReturnTasks() throws SQLException, CannotGetEnvironmentVariableException {
+    List<TaskResponse> expectedResult = Arrays.asList(
+            new TaskResponse(1, "Task 1", false, new Timestamp(System.currentTimeMillis())),
+            new TaskResponse(2, "Task 2", true, new Timestamp(System.currentTimeMillis()))
+    );
     Mockito.when(databaseConnector.getConnection()).thenReturn(connection);
-    Mockito.when(taskDao.getAllTasks(connection)).thenReturn(records);
-    List<Task> result = taskService.getAllTasks();
-    assertEquals(result, records);
+    Mockito.when(taskDao.getAllTasks(connection)).thenReturn(expectedResult);
+    List<TaskResponse> result = taskService.getAllTasks();
+    assertEquals(result, expectedResult);
   }
 
   @Test
