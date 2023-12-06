@@ -1,6 +1,8 @@
 package org.kainos.ea.api;
 
 import org.kainos.ea.cli.Task;
+import org.kainos.ea.cli.TaskRequest;
+import org.kainos.ea.cli.TaskResponse;
 import org.kainos.ea.client.CannotGetEnvironmentVariableException;
 import org.kainos.ea.db.DatabaseConnector;
 import org.kainos.ea.db.TaskDao;
@@ -17,7 +19,7 @@ public class TaskService {
     this.databaseConnector = databaseConnector;
   }
 
-  public List<Task> getAllTasks() throws SQLException, CannotGetEnvironmentVariableException {
+  public List<TaskResponse> getAllTasks() throws SQLException, CannotGetEnvironmentVariableException {
     return taskDao.getAllTasks(databaseConnector.getConnection());
   }
 
@@ -28,5 +30,9 @@ public class TaskService {
       throw new SQLException();
     }
     return task;
+  }
+
+  public int addTask(TaskRequest taskRequest) throws SQLException, CannotGetEnvironmentVariableException {
+    return taskDao.addTask(taskRequest, databaseConnector.getConnection());
   }
 }
