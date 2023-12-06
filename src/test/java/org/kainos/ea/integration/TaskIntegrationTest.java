@@ -11,6 +11,7 @@ import org.kainos.ea.TestingTasksConfiguration;
 import org.kainos.ea.cli.Task;
 import org.kainos.ea.cli.TaskRequest;
 import org.kainos.ea.cli.TaskResponse;
+import org.kainos.ea.cli.TaskUpdateRequest;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -53,10 +54,22 @@ public class TaskIntegrationTest {
   }
 
   @Test
-  void deleteTask_shouldReturn20Status() {
+  void deleteTask_shouldReturn204Status() {
     Response response = APP.client()
             .target("http://localhost:8080/api/tasks/7")
             .request().delete();
+
+    Assertions.assertEquals(204, response.getStatus());
+  }
+
+  @Test
+  void updateTask_shouldReturn201Status() {
+    TaskUpdateRequest taskUpdateRequest =
+    new TaskUpdateRequest(2, "UPDATED", false);
+
+    Response response = APP.client()
+            .target("http://localhost:8080/api/tasks/5")
+            .request().put(Entity.json(taskUpdateRequest));
 
     Assertions.assertEquals(204, response.getStatus());
   }
