@@ -23,8 +23,8 @@ public class TaskService {
     return taskDao.getAllTasks(databaseConnector.getConnection());
   }
 
-  public Task getTaskById(int id) throws SQLException, CannotGetEnvironmentVariableException {
-    Task task = taskDao.getTaskById(id, databaseConnector.getConnection());
+  public TaskResponse getTaskById(int id) throws SQLException, CannotGetEnvironmentVariableException {
+    TaskResponse task = taskDao.getTaskById(id, databaseConnector.getConnection());
 
     if (task == null) {
       throw new SQLException();
@@ -34,5 +34,9 @@ public class TaskService {
 
   public int addTask(TaskRequest taskRequest) throws SQLException, CannotGetEnvironmentVariableException {
     return taskDao.addTask(taskRequest, databaseConnector.getConnection());
+  }
+
+  public String deleteTask(int id) throws SQLException, CannotGetEnvironmentVariableException {
+    return taskDao.deleteTask(id, databaseConnector.getConnection());
   }
 }

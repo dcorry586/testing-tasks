@@ -8,6 +8,7 @@ import org.kainos.ea.client.CannotGetEnvironmentVariableException;
 import org.kainos.ea.db.DatabaseConnector;
 import org.kainos.ea.db.TaskDao;
 import org.kainos.ea.resources.TaskController;
+import org.mockito.Mockito;
 
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
@@ -58,5 +59,19 @@ public class TaskControllerTest {
     Response response = taskController.getAllTasks();
     // Check the status code
     assertEquals(500, response.getStatus());
+  }
+
+@Test
+  public void deleteTaskFail() throws SQLException, CannotGetEnvironmentVariableException {
+    Response response = taskController.deleteTask(-3);
+  assertEquals(400, response.getStatus());
+  }
+
+  @Test
+  public void deleteTaskSuccess() throws SQLException, CannotGetEnvironmentVariableException {
+  String expectedResult = "VALID";
+    Mockito.when(taskService.deleteTask(1)).thenReturn(expectedResult);
+    Response response = taskController.deleteTask(1);
+    assertEquals(202, response.getStatus());
   }
 }

@@ -33,7 +33,7 @@ public class TaskDao {
     return tasks;
   }
 
-  public Task getTaskById(int id, Connection connection) throws SQLException {
+  public TaskResponse getTaskById(int id, Connection connection) throws SQLException {
     String sql = "SELECT task_id, task, completed, created_at FROM tasks WHERE task_id = ?;";
     PreparedStatement statement = connection.prepareStatement(sql);
     statement.setInt(1, id);
@@ -41,7 +41,7 @@ public class TaskDao {
     ResultSet rs = statement.executeQuery();
 
     if (rs.next()) {
-      return new Task(
+      return new TaskResponse(
               rs.getInt("task_id"),
               rs.getString("task"),
               rs.getBoolean("completed"),
@@ -65,5 +65,34 @@ public class TaskDao {
       throw new SQLException("Failed to create task");
     }
     return id;
+  }
+
+  private static boolean findRecordInTable(int id, Connection connection) throws SQLException {
+    String sql = "SELECT task_id FROM tasks WHERE task_id = ?;";
+    PreparedStatement statement = connection.prepareStatement(sql);
+    statement.setInt(1, id);
+    ResultSet resultSet = statement.executeQuery();
+
+    if (resultSet.next()) {
+      int returnedId = resultSet.getInt("task_id");
+      System.out.println("RETURNED ID = " + returnedId);
+      return returnedId > 0;
+    }
+    return false;
+  }
+
+  public String deleteTask(int id, Connection connection) throws SQLException {
+    if (findRecordInTable(id, connection)) {
+      String sql = "DELETE FROM tasks WHERE task_id = ?;";
+      PreparedStatement statement = connection.prepareStatement(sql);
+      statement.setInt(1, id);
+
+      boolean deleted = statement.execute();
+      if (deleted) {
+        return "VALID";
+      }
+      return "Failed to delete resource";
+    }
+    return "Cannot find resource";
   }
 }

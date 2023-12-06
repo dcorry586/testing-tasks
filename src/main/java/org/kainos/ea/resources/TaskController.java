@@ -33,7 +33,7 @@ public class TaskController {
 
       List<TaskResponse> tasks = taskService.getAllTasks();
       if (tasks != null) {
-        return Response.ok().build();
+        return Response.ok().entity(tasks).build();
       } else {
         throw new SQLException("No records found.");
       }
@@ -75,6 +75,27 @@ public class TaskController {
     } catch (InvalidEntryException e) {
       System.err.println(e.getMessage());
       return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+    return null;
+  }
+
+  @DELETE
+  @Path("/tasks/{id}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response deleteTask(@PathParam("id") int id) {
+    try {
+      String result = taskService.deleteTask(id);
+      if (result.equals("VALID")) {
+        return Response.accepted().build();
+      }
+      if (result.equals("Cannot find resource")) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(result).build();
+      }
+    } catch (SQLException e) {
+      System.err.println(e.getMessage());
+      return Response.serverError().entity(e.getMessage()).build();
+    } catch (CannotGetEnvironmentVariableException e) {
+      System.err.println(e.getMessage());
     }
     return null;
   }
