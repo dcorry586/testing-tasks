@@ -4,8 +4,10 @@ import io.swagger.annotations.Api;
 import org.kainos.ea.api.TaskService;
 import org.kainos.ea.cli.TaskRequest;
 import org.kainos.ea.cli.TaskResponse;
+import org.kainos.ea.cli.TaskUpdateRequest;
 import org.kainos.ea.client.CannotGetEnvironmentVariableException;
 import org.kainos.ea.client.InvalidEntryException;
+import org.kainos.ea.validator.TaskUpdateRequestValidator;
 import org.kainos.ea.validator.TaskValidator;
 
 import javax.ws.rs.*;
@@ -18,6 +20,7 @@ import java.util.List;
 @Path("/api")
 public class TaskController {
   private static final TaskValidator taskValidator = new TaskValidator();
+  private static final TaskUpdateRequestValidator taskUpdateRequestValidator= new TaskUpdateRequestValidator();
 
   TaskService taskService;
 
@@ -96,6 +99,29 @@ public class TaskController {
       return Response.serverError().entity(e.getMessage()).build();
     } catch (CannotGetEnvironmentVariableException e) {
       System.err.println(e.getMessage());
+    }
+    return null;
+  }
+
+  @PUT
+  @Path("/tasks/{id}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response updateTask(@PathParam("id") int id, TaskUpdateRequest taskUpdateRequest) {
+    try {
+      if (taskUpdateRequestValidator.isValidTask(taskUpdateRequest).equals("VALID")) {
+        if (taskService.updateTask(id, taskUpdateRequest) == 0) {
+          throw new InvalidEntryException();
+        } else {
+          return Response.status(Response.Status.CREATED).build();
+        }
+      }
+    } catch (SQLException | CannotGetEnvironmentVariableException e) {
+      System.err.println(e.getMessage());
+      return Response.serverError().entity(e.getMessage()).build();
+    } catch (InvalidEntryException e) {
+      System.err.println(e.getMessage());
+      return Response.status(Response.Status.BAD_REQUEST).build();
     }
     return null;
   }

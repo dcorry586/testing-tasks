@@ -3,7 +3,9 @@ package org.kainos.ea.db;
 import org.kainos.ea.cli.Task;
 import org.kainos.ea.cli.TaskRequest;
 import org.kainos.ea.cli.TaskResponse;
+import org.kainos.ea.cli.TaskUpdateRequest;
 import org.kainos.ea.client.CannotGetEnvironmentVariableException;
+import org.kainos.ea.client.UnableToFindResourceException;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -94,5 +96,27 @@ public class TaskDao {
       return "Failed to delete resource";
     }
     return "Cannot find resource";
+  }
+
+  public int updateTask(int id, Connection connection, TaskUpdateRequest taskUpdateRequest)
+          throws SQLException {
+
+    try {
+      if (findRecordInTable(id, connection)) {
+        String sql = "UPDATE TASKS SET task = ?, completed = ?, updated_at = CURRENT_TIMESTAMP() " +
+                "WHERE task_id = ?;";
+        PreparedStatement statement = connection.prepareStatement(sql);
+        statement.setString(1, taskUpdateRequest.getTask());
+        statement.setBoolean(2, taskUpdateRequest.isCompleted());
+        statement.setInt(3, id);
+
+        return statement.executeUpdate();
+      } else {
+        throw new UnableToFindResourceException();
+      }
+    } catch (UnableToFindResourceException e) {
+      System.err.println(e.getMessage());
+    }
+    return -1;
   }
 }

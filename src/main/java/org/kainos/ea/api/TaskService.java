@@ -3,6 +3,7 @@ package org.kainos.ea.api;
 import org.kainos.ea.cli.Task;
 import org.kainos.ea.cli.TaskRequest;
 import org.kainos.ea.cli.TaskResponse;
+import org.kainos.ea.cli.TaskUpdateRequest;
 import org.kainos.ea.client.CannotGetEnvironmentVariableException;
 import org.kainos.ea.db.DatabaseConnector;
 import org.kainos.ea.db.TaskDao;
@@ -38,5 +39,10 @@ public class TaskService {
 
   public String deleteTask(int id) throws SQLException, CannotGetEnvironmentVariableException {
     return taskDao.deleteTask(id, databaseConnector.getConnection());
+  }
+
+  public int updateTask(int id, TaskUpdateRequest taskUpdateRequest) throws SQLException,
+          CannotGetEnvironmentVariableException {
+    return taskDao.updateTask(id, databaseConnector.getConnection(), taskUpdateRequest);
   }
 }
