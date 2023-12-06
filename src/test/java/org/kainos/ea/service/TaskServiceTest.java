@@ -1,20 +1,19 @@
-package org.kainos.ea.api;
+package org.kainos.ea.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.function.Executable;
+import org.kainos.ea.api.TaskService;
 import org.kainos.ea.cli.Task;
+import org.kainos.ea.cli.TaskRequest;
 import org.kainos.ea.cli.TaskResponse;
 import org.kainos.ea.client.CannotGetEnvironmentVariableException;
 import org.kainos.ea.db.DatabaseConnector;
 import org.kainos.ea.db.TaskDao;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.sql.Timestamp;
@@ -22,7 +21,6 @@ import java.sql.Timestamp;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class TaskServiceTest {
@@ -33,7 +31,7 @@ public class TaskServiceTest {
 
   Connection connection;
 
-  private  static final List<Task> records = Arrays.asList(
+  private static final List<Task> records = Arrays.asList(
           new Task(1, "Task 1", false, new Timestamp(System.currentTimeMillis())),
           new Task(2, "Task 2", true, new Timestamp(System.currentTimeMillis()))
   );
@@ -77,5 +75,42 @@ public class TaskServiceTest {
     Mockito.when(taskDao.getTaskById(id, connection)).thenReturn(records.get(0));
     // assert result id is equal to id field of first element in records list
     assertEquals(id, taskService.getTaskById(id).getTaskId());
+  }
+
+  @Test
+  public void addTask_shouldReturnOne_whenDaoReturnsId() throws SQLException, CannotGetEnvironmentVariableException {
+    // Mock database connection
+    Mockito.when(databaseConnector.getConnection()).thenReturn(connection);
+
+    // Create TaskRequest object to store in DB.
+    TaskRequest taskRequest = new TaskRequest("go for run", false);
+
+    int expectedResult = 1;
+
+    // Mock record in Database
+    Mockito.when(taskDao.addTask(taskRequest, connection)).thenReturn(expectedResult);
+
+
+    // Tell service to add taskRequest
+    int result = taskService.addTask(taskRequest);
+
+    // assert
+    assertEquals(expectedResult, result);
+  }
+
+  @Test
+  public void addTask_shouldThrowSQLException_whenDaoThrowsSQLException() throws SQLException, CannotGetEnvironmentVariableException {
+    // Mock database connection
+    Mockito.when(databaseConnector.getConnection()).thenReturn(connection);
+    // Tell Dao to throw SQLException
+
+    TaskRequest taskRequest = new TaskRequest("go for run", false);
+    Mockito.when(taskDao.addTask(taskRequest, connection))
+            .thenThrow(SQLException.class);
+
+    // Assert SQL exception throws from service class
+    assertThrows(SQLException.class, () -> {
+      taskService.addTask(taskRequest);
+    });
   }
 }

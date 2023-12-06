@@ -1,39 +1,44 @@
 package org.kainos.ea.resources;
 
 import io.swagger.annotations.Api;
-import org.checkerframework.checker.units.qual.C;
 import org.kainos.ea.api.TaskService;
-import org.kainos.ea.cli.Task;
 import org.kainos.ea.cli.TaskRequest;
+import org.kainos.ea.cli.TaskResponse;
 import org.kainos.ea.client.CannotGetEnvironmentVariableException;
 import org.kainos.ea.client.InvalidEntryException;
-import org.kainos.ea.db.DatabaseConnector;
-import org.kainos.ea.db.TaskDao;
 import org.kainos.ea.validator.TaskValidator;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
+import java.util.List;
 
 @Api("Tasks API")
 @Path("/api")
 public class TaskController {
-
-  TaskDao taskDao = new TaskDao();
   private static final TaskValidator taskValidator = new TaskValidator();
-  DatabaseConnector databaseConnector = new DatabaseConnector();
 
-  TaskService taskService = new TaskService(taskDao, databaseConnector);
+  TaskService taskService;
+
+  public TaskController(TaskService taskService) {
+    this.taskService = taskService;
+  }
 
   @GET
   @Path("/tasks")
   @Produces(MediaType.APPLICATION_JSON)
   public Response getAllTasks() {
     try {
-      return Response.ok(taskService.getAllTasks()).build();
+
+      List<TaskResponse> tasks = taskService.getAllTasks();
+      if (tasks != null) {
+        return Response.ok().build();
+      } else {
+        throw new SQLException("No records found.");
+      }
     } catch (SQLException | CannotGetEnvironmentVariableException e) {
-      System.err.println(e.getMessage());
+      System.err.println("Add Task Controller Err: " + e.getMessage());
       return Response.serverError().build();
     }
   }

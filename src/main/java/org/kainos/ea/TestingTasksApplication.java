@@ -5,6 +5,9 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
+import org.kainos.ea.api.TaskService;
+import org.kainos.ea.db.DatabaseConnector;
+import org.kainos.ea.db.TaskDao;
 import org.kainos.ea.resources.TaskController;
 
 public class TestingTasksApplication extends Application<TestingTasksConfiguration> {
@@ -31,7 +34,10 @@ public class TestingTasksApplication extends Application<TestingTasksConfigurati
   @Override
   public void run(final TestingTasksConfiguration configuration,
                   final Environment environment) {
-    environment.jersey().register(new TaskController());
+
+    DatabaseConnector databaseConnector = new DatabaseConnector();
+    TaskDao taskDao = new TaskDao();
+    environment.jersey().register(new TaskController(new TaskService(taskDao, databaseConnector)));
   }
 
 }
