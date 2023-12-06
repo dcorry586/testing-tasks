@@ -67,12 +67,17 @@ public class TaskServiceTest {
 
   @Test
   public void getTasksByID_shouldReturnTask() throws SQLException, CannotGetEnvironmentVariableException {
+   List<TaskResponse> expectedResult = Arrays.asList(
+            new TaskResponse(1, "Task 1", false, new Timestamp(System.currentTimeMillis())),
+            new TaskResponse(2, "Task 2", true, new Timestamp(System.currentTimeMillis()))
+    );
+
     // Mock database connection
     Mockito.when(databaseConnector.getConnection()).thenReturn(connection);
     // Create valid id that points to first element in records list field
     int id = records.get(0).getTaskId();
     // Tell stub to return record
-    Mockito.when(taskDao.getTaskById(id, connection)).thenReturn(records.get(0));
+    Mockito.when(taskDao.getTaskById(id, connection)).thenReturn(expectedResult.get(0));
     // assert result id is equal to id field of first element in records list
     assertEquals(id, taskService.getTaskById(id).getTaskId());
   }
@@ -112,5 +117,27 @@ public class TaskServiceTest {
     assertThrows(SQLException.class, () -> {
       taskService.addTask(taskRequest);
     });
+  }
+    public void deleteTask_shouldReturnVALID_whenDaoReturnsVALID() throws SQLException, CannotGetEnvironmentVariableException {
+    // Connect to DB
+    Mockito.when(databaseConnector.getConnection()).thenReturn(connection);
+    int id = 1;
+    String valid = "VALID";
+    // Insert dummy data
+    Mockito.when(taskDao.deleteTask(id, connection)).thenReturn(valid);
+
+    assertEquals(valid, taskService.deleteTask(id));
+  }
+
+  @Test
+  public void deleteTask_shouldReturnCannotFindResource_whenDaoReturnsCannotFindResource() throws SQLException, CannotGetEnvironmentVariableException {
+    // Connect to DB
+    Mockito.when(databaseConnector.getConnection()).thenReturn(connection);
+    int id = -1;
+    String expectedResult = "Cannot find resource";
+    // Insert dummy data
+    Mockito.when(taskDao.deleteTask(id, connection)).thenReturn(expectedResult);
+
+    assertEquals(expectedResult, taskService.deleteTask(id));
   }
 }
