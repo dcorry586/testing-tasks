@@ -59,11 +59,11 @@ public class TaskDao {
     statement.setString(1, taskRequest.getTask());
     statement.setBoolean(2, taskRequest.isCompleted());
 
-    int affectedRows = statement.executeUpdate();
+    int id = statement.executeUpdate();
 
-    if (affectedRows == 0) {
+    if (id == 0) {
       throw new SQLException("Failed to create task");
     }
-    return affectedRows;
+    return id;
   }
 }
